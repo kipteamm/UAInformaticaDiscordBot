@@ -109,7 +109,6 @@ async def on_message(message):
 
     if message.content == ".embed":
         if not message.author.guild_permissions.administrator:
-            await message.channel.send("❌ Je hebt geen toestemming om dit commando te gebruiken.")
             return
 
         embed = discord.Embed(

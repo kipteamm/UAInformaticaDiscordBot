@@ -1,3 +1,6 @@
+from datetime import datetime
+from discord import app_commands
+
 import database
 import requests
 import discord
@@ -8,7 +11,7 @@ GUILD_ID = 1385668310573781102
 ROLE_ID = 1385668379767210096
 
 
-def send_html_email(receiver: str, code: str):
+def send_email(receiver: str, code: str):
     data = {
         "access_code": secret.WEBHOOK_ACCESS,
         "email": receiver,
@@ -23,7 +26,9 @@ def send_html_email(receiver: str, code: str):
 intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
+
 client = discord.Client(intents=intents)
+tree = app_commands.CommandTree(client)
 
 
 class EmailModal(discord.ui.Modal, title="Vul je e-mailadres in"):
@@ -50,7 +55,7 @@ class EmailModal(discord.ui.Modal, title="Vul je e-mailadres in"):
 
         try:
             code = database.create_entry(interaction.user.id, email)
-            send_html_email(email, code)
+            send_email(email, code)
             await interaction.response.send_message(f"✅ Een verificatie-e-mail is verstuurd naar **{email}**! Het kan maximaal **5 minuten** duren voordat deze aankomt. Controleer ook zeker je **spam/junk** folder.", ephemeral=True)
 
         except Exception as e:
@@ -118,11 +123,47 @@ async def on_message(message):
                 "Om toegang te krijgen, vragen we je vriendelijk om je UAntwerpen studenten e-mailadres te gebruiken.\n"
                 "1. Klik op **Stuur code** om een verificatiecode te ontvangen per e-mail.\n"
                 "2. Klik vervolgens op **Verifieer account** en vul je code in.\n\n"
-                "-# Indien u problemen ondervindt, of in het geval dat de bot offline is, contacteer <@675316333780533268>." # <@&1291026286063386624>
+                "_Wanneer je je account verifieert, stem je ermee in dat moderatoren het aan jouw account gekoppelde e-mailadres kunnen opvragen in geval van misbruik of het overtreden van regels. Moderatoren mogen dit uitsluitend doen met een geldige reden. Medestudenten zullen in geen enkel geval toegang krijgen tot deze gegevens._\n"
+                "-# Bij klachten, problemen of vragen, contacteer <@675316333780533268>." # <@&1291026286063386624>
             ),
             color=0x003a5f
         )
         await message.channel.send(embed=embed, view=VerificationView())
+
+
+@tree.command(name="whois", description="Toon informatie over een gebruiker")
+@app_commands.describe(user="De gebruiker waarvan je info wil zien")
+@app_commands.checks.has_role(1291026286063386624)
+async def whois(interaction: discord.Interaction, user: discord.Member):
+    data = database.get_email(user.id)
+    if not data:
+        return await interaction.response.send_message("Gebruiker is niet geverifieerd", ephemeral=True)
+
+    embed = discord.Embed(
+        title=f"Info over {user}",
+        description=(
+            f"<@{user.id}> `{user.id}`\n"
+            f"**Username:** `{user.global_name}`\n"
+            f"**Nickname:** `{user.display_name}`\n"
+            f"**Discord lid sinds:** <t:{round(user.created_at.timestamp())}:f>\n"
+            f"**Server lid sinds:** <t:{round(user.joined_at.timestamp())}:f>\n"
+            f"**Geverifieerd op:** <t:{round(data[2]) if data else None}:f>\n"
+            f"**Verificatie pogingen** `{data[1] + 1 if data else None}`\n"
+            f"**Email:** ||`{data[0] if data else None}`||"
+        ),
+        color=0x003a5f
+    )
+
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
+
+@tree.error
+async def on_app_command_error(interaction: discord.Interaction, error):
+    if isinstance(error, app_commands.MissingRole):
+        await interaction.response.send_message(
+            "Je hebt niet de juiste permissions om dit commando te gebruiken!", 
+            ephemeral=True
+        )
 
 
 @client.event
@@ -133,6 +174,8 @@ async def on_member_remove(member):
 @client.event
 async def on_ready():
     client.add_view(VerificationView())
+    # await tree.sync()
+    await tree.sync(guild=discord.Object(id=1385668310573781102))
     print(f"Logged in as {client.user}!")
 
 

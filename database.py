@@ -97,5 +97,10 @@ def can_retry(discord_id: int) -> tuple[bool, str]:
 
 
 def remove_entry(discord_id: int) -> None:
-    c.execute("DELETE FROM verifications WHERE discord_id = ?", (discord_id,LookupError))
+    c.execute("DELETE FROM verifications WHERE discord_id = ?", (discord_id,))
     conn.commit()
+
+
+def get_email(discord_id: int) -> tuple | None:
+    c.execute("SELECT email, attempts, email_timestamp FROM verifications WHERE discord_id = ?", (discord_id, ))
+    return c.fetchone()

@@ -7,10 +7,6 @@ import discord
 import secret
 
 
-GUILD_ID = 1385668310573781102
-ROLE_ID = 1385668379767210096
-
-
 def send_email(receiver: str, code: str):
     data = {
         "access_code": secret.WEBHOOK_ACCESS,
@@ -64,7 +60,7 @@ class EmailModal(discord.ui.Modal, title="Vul je e-mailadres in"):
             await interaction.edit_original_response(content=f"✅ Een verificatie-e-mail is verstuurd naar **{email}**! Het kan maximaal **5 minuten** duren voordat deze aankomt. Controleer ook zeker je **spam/junk** folder.")
 
         except Exception as e:
-            await interaction.edit_original_response(content=f"❌ Kon verificatie-e-mail niet verzenden, contacteer <@675316333780533268> met deze error: `{e}`.", ephemeral=True)
+            await interaction.edit_original_response(content=f"❌ Kon verificatie-e-mail niet verzenden, contacteer <@675316333780533268> met deze error: `{e}`.")
 
 
 class CodeModal(discord.ui.Modal, title="Voer je code in"):
@@ -79,12 +75,12 @@ class CodeModal(discord.ui.Modal, title="Voer je code in"):
 
         success, _message = database.verify_code(interaction.user.id, code)
         if success:
-            guild = client.get_guild(GUILD_ID)
+            guild = client.get_guild(secret.GUILD_ID)
             if not guild:
                 print("Guild not found.")
                 return
 
-            role = guild.get_role(ROLE_ID)
+            role = guild.get_role(secret.ROLE_ID)
             if not role:
                 print("Role not found.")
                 return

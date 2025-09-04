@@ -32,7 +32,7 @@ tree = app_commands.CommandTree(client)
 
 
 class EmailModal(discord.ui.Modal, title="Vul je e-mailadres in"):
-    email_input = discord.ui.TextInput(label="UAntwerpen e-mailadres", placeholder="john.doe@student.uantwerpen.be")
+    email_input = discord.ui.TextInput(label="...@student.uantwerpen.be e-mailadres", placeholder="john.doe@student.uantwerpen.be")
 
     async def on_submit(self, interaction: discord.Interaction):
         email = self.email_input.value
@@ -121,7 +121,7 @@ async def on_message(message):
             description=(
                 "Welkom bij de Informatica Discord server!\n\n"
                 "Om toegang te krijgen, vragen we je vriendelijk om je UAntwerpen studenten e-mailadres te gebruiken.\n"
-                "1. Klik op **Stuur code** om een verificatiecode te ontvangen per e-mail.\n"
+                "1. Klik op **Stuur code** om een verificatiecode te ontvangen per e-mail van `informatica.uantwerpen@gmail.com`.\n"
                 "2. Klik vervolgens op **Verifieer account** en vul je code in.\n\n"
                 "_Wanneer je je account verifieert, stem je ermee in dat moderatoren het aan jouw account gekoppelde e-mailadres kunnen opvragen in geval van misbruik of het overtreden van regels. Moderatoren mogen dit uitsluitend doen met een geldige reden. Medestudenten zullen in geen enkel geval toegang krijgen tot deze gegevens._\n"
                 "-# Bij klachten, problemen of vragen, contacteer <@675316333780533268>." # <@&1291026286063386624>

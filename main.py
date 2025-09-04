@@ -54,12 +54,17 @@ class EmailModal(discord.ui.Modal, title="Vul je e-mailadres in"):
             return
 
         try:
+            await interaction.response.send_message(
+                "🔄 Bezig met verzenden van verificatie-e-mail...",
+                ephemeral=True
+            )
+
             code = database.create_entry(interaction.user.id, email)
             send_email(email, code)
-            await interaction.response.send_message(f"✅ Een verificatie-e-mail is verstuurd naar **{email}**! Het kan maximaal **5 minuten** duren voordat deze aankomt. Controleer ook zeker je **spam/junk** folder.", ephemeral=True)
+            await interaction.edit_original_response(content=f"✅ Een verificatie-e-mail is verstuurd naar **{email}**! Het kan maximaal **5 minuten** duren voordat deze aankomt. Controleer ook zeker je **spam/junk** folder.")
 
         except Exception as e:
-            await interaction.response.send_message(f"❌ Kon verificatie-e-mail niet verzenden, contacteer <@675316333780533268> met deze error: `{e}`.", ephemeral=True)
+            await interaction.edit_original_response(content=f"❌ Kon verificatie-e-mail niet verzenden, contacteer <@675316333780533268> met deze error: `{e}`.", ephemeral=True)
 
 
 class CodeModal(discord.ui.Modal, title="Voer je code in"):

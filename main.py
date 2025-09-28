@@ -33,7 +33,7 @@ class EmailModal(discord.ui.Modal, title="Vul je e-mailadres in"):
     async def on_submit(self, interaction: discord.Interaction):
         email = self.email_input.value
         if not "@" in email:
-            await interaction.response.send_message("❌ Incorrect e-mailadres.", ephemeral=False)
+            await interaction.response.send_message("❌ Incorrect e-mailadres.", ephemeral=True)
             return
         
         suffix = email.split("@")[1]
